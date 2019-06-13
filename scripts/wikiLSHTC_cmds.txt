@@ -1,0 +1,10 @@
+./depth_exp.sh wikiLSHTC 69 3 1
+./depth_exp.sh wikiLSHTC 69 3 2
+./depth_exp.sh wikiLSHTC 69 3 3
+./depth_exp.sh wikiLSHTC 69 3 4
+./depth_exp.sh wikiLSHTC 69 3 5
+./depth_exp.sh wikiLSHTC 69 3 6
+./depth_exp.sh wikiLSHTC 69 3 7
+./depth_exp.sh wikiLSHTC 69 3 8
+./depth_exp.sh wikiLSHTC 69 3 9
+./depth_exp.sh wikiLSHTC 69 3 10
