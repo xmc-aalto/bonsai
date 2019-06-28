@@ -11,13 +11,13 @@
 # Compiling and Testing
 
 - The code for Bonsai is written in C++ and thus requires C++11 enabled compilers.
-- To compile, run the `make` command from inside the shallow directory
-- A sample script `sample_run.sh` is provided inside the shallow directory which trains the model and computes the metrics for the EUR-Lex dataset. 
+- To compile, run the `make` command from inside the `shallow` directory
+- A sample script `sample_run.sh` is provided inside the `shallow` directory which trains the model and computes the metrics for the EUR-Lex dataset. 
 - The usage of Bonsai for other datasets can be achieved from the above-mentioned `sample_run.sh` script by setting parameter `-m` to `2` for smaller datasets like EUR-Lex, Wikipedia-31K and to `3` for larger datasets like Delicious-200K, WikiLSHTC-325K, Amazon-670K, Wikipedia-500K, Amazon-3M.
 
 # Miscellaneous
 
-- A script `convert_data.sh` is provided in the sandbox directory to convert the raw train/test datasets from the XMC repository to the format needed by Bonsai.
+- A script `convert_data.sh` is provided in the `sandbox` directory to convert the raw train/test datasets from the XMC repository to the format needed by Bonsai.
 - Scripts for performance evaluation are only available in Matlab. To compile these scripts, execute `make` in the tools/matlab folder from the Matlab terminal.
 
 # Acknowledgement
