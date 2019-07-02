@@ -1,3 +1,7 @@
+# Bonsai
+
+C++ implementation of the paper [Bonsai - Diverse and Shallow Trees for Extreme Multi-label Classification](https://arxiv.org/abs/1904.08249)
+
 # Introduction
 
 ## Bonsai - Diverse and Shallow Trees for Extreme Multi-label Classification
