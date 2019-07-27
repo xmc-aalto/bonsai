@@ -513,7 +513,7 @@ void reindex_rows( SMatF* mat, _int nr, VecI& rows )
 }
 
 thread_local _bool* mask; // shared among threads?
-void active_dims( SMatF* mat, VecI& insts, VecI& dims, _int& nnz )
+void active_dims( SMatF* mat, VecI& insts, VecI& dims, _llint& nnz )
 {
   nnz = 0;
   dims.clear(); // rows become empty
@@ -575,7 +575,7 @@ SMatF* partition_to_assign_mat( SMatF* Y_X, VecI& partition)
 	neg_Y.push_back( i );
     }
   */
-  vector<_int> nnz_by_part(num_partitions);
+  vector<_llint> nnz_by_part(num_partitions);
   vector< vector<_int> > X_by_part(num_partitions);
   for(_int i=0; i<num_partitions; i++){
     active_dims( Y_X, Y_by_part[i], X_by_part[i], nnz_by_part[i] );
@@ -641,7 +641,7 @@ void shrink_mat( SMatF* mat, VecI& cols, SMatF*& s_mat, VecI& rows )
   _int* size = mat->size;
   pairIF** data = mat->data;
 
-  _int nnz;
+  _llint nnz;
 
   // `rows` iss empty vector
   // values will be added after calling `active_dims`
@@ -653,7 +653,7 @@ void shrink_mat( SMatF* mat, VecI& cols, SMatF*& s_mat, VecI& rows )
   _int s_nr = rows.size();
   s_mat = new SMatF( s_nr, s_nc, nnz, true );
 
-  _int sumsize = 0;
+  _llint sumsize = 0;
   for( _int i=0; i<s_nc; i++)
     {
       _int col = cols[i];
@@ -887,10 +887,11 @@ Tree* train_tree( SMatF* trn_X_Xf, SMatF* trn_Y_X, SMatF* cent_mat, Param& param
   _int num_X = trn_X_Xf->nc;
   _int num_Xf = trn_X_Xf->nr;
   _int num_Y = trn_Y_X->nc;
+  _int num_XY = cent_mat->nr;
 
   // ---------------
 	  
-  _int max_n = max( max( num_X+1, num_Xf+1 ), num_Y+1 );
+  _int max_n = max( max( max( num_X+1, num_Xf+1 ), num_Y+1 ), num_XY+1);
   mask = new _bool[ max_n ]();
 
   // TOOD: should be a parameter
@@ -1066,7 +1067,7 @@ void train_trees_thread( SMatF* trn_X_Xf, SMatF* trn_Y_X, SMatF* cent_mat, Param
   }
 }
 
-void train_trees( SMatF* trn_X_Xf, SMatF* trn_X_Y, Param& param, string model_dir, _float& train_time )
+void train_trees( SMatF* trn_X_Xf, SMatF* trn_X_Y, SMatF* trn_X_XY, Param& param, string model_dir, _float& train_time )
 {
   // called by main
   // train trees in parallel
@@ -1081,9 +1082,36 @@ void train_trees( SMatF* trn_X_Xf, SMatF* trn_X_Y, Param& param, string model_di
 
   SMatF* cent_mat = NULL;
 
-    cent_mat = trn_X_Xf->prod( trn_Y_X ); // get the label matrix , each column a label
-    cent_mat->unit_normalize_columns();  
-    cent_mat->threshold( param.cent_th ); // make it sparse by thresholding
+    // cent_mat = trn_X_Xf->prod( trn_Y_X ); // get the label matrix , each column a label
+    // cent_mat->unit_normalize_columns();  
+    // cent_mat->threshold( param.cent_th ); // make it sparse by thresholding
+  
+  if(param.cent_type == 0)
+  {
+    cent_mat = trn_X_Xf->prod( trn_Y_X );
+    cent_mat->unit_normalize_columns();
+  }
+
+  else if(param.cent_type == 1)
+  {
+    cent_mat = trn_X_Y->prod( trn_Y_X ); 
+    cent_mat->remove_self_coocc(0);  //passing 0 instead of param.num_Xf
+    cent_mat->unit_normalize_columns();
+  }
+
+  else if(param.cent_type == 2)
+  {
+    cent_mat = trn_X_XY->prod( trn_Y_X ); // get the label matrix , each column a label
+    // cent_mat->unit_normalize_columns(); 
+    cent_mat->unit_normalize_X_columns(param.num_Xf, param.num_Y);  //changed
+    // cent_mat->unit_normalize_Y_columns(param.num_Xf, param.num_Y);
+    // cent_mat->normalize_Y_columns(param.num_Xf, param.num_Y);
+    cent_mat->remove_self_coocc(param.num_Xf);
+    cent_mat->unit_normalize_Y_columns(param.num_Xf, param.num_Y);
+    // cent_mat->make_coooc_cons(param.num_Xf, 1);
+  }
+
+  cent_mat->threshold( param.cent_th ); // make it sparse by thresholding
 
   append_bias( trn_X_Xf, param.bias );
 

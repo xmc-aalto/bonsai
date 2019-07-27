@@ -33,6 +33,7 @@ void help()
   cerr<<"-siter no. of svm iterations. default=20"<<endl;
   cerr<<"-q quiet option (0/1). default=0"<<endl;
   cerr<<"-stype linear separator type. 0=L2R_L2LOSS_SVC, 1=L2R_LR. default=L2R_L2LOSS_SVC"<<endl;
+  cerr<<"-ctype centroid representation type. 0=Bonsai, 1=Label cooccurence, 2=Bonsai+Label cooccurence. default=0"<<endl;
 
   exit(1);
 }
@@ -81,6 +82,8 @@ Param parse_param(_int argc, char* argv[])
 	param.septype = (_Septype)((_int)val);
       else if(opt=="-ptype")
 	param.part_type = (_Parttype)((_int)val);
+      else if(opt=="-ctype")
+      param.cent_type = (_int)val;
     }
 
   return param;
@@ -90,7 +93,7 @@ int main(int argc, char* argv[])
 {
   std::ios_base::sync_with_stdio(false);
 
-  if(argc < 4)
+  if(argc < 5)
     help();
 
   string ft_file = string( argv[1] );
@@ -101,16 +104,20 @@ int main(int argc, char* argv[])
   check_valid_filename( lbl_file, true );
   SMatF* trn_X_Y = new SMatF(lbl_file);
 
-  string model_dir = string( argv[3] );
+  string ft_lbl_file = string( argv[3] );
+  check_valid_filename( ft_lbl_file, true );
+  SMatF* trn_X_XY = new SMatF(ft_lbl_file);
+
+  string model_dir = string( argv[4] );
   check_valid_foldername( model_dir );
 
-  Param param = parse_param( argc-4, argv+4 );
+  Param param = parse_param( argc-5, argv+5 );
   param.num_Xf = trn_X_Xf->nr;
   param.num_Y = trn_X_Y->nr;
   param.write( model_dir+"/param" );
 
   _float train_time;
-  train_trees( trn_X_Xf, trn_X_Y, param, model_dir, train_time );
+  train_trees( trn_X_Xf, trn_X_Y, trn_X_XY, param, model_dir, train_time );
   cout << "Training time: " << train_time << " s" << endl;
 
   delete trn_X_Xf;

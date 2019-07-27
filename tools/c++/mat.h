@@ -94,7 +94,7 @@ public:
 		cdata = NULL;
 	}
 
-	SMat( _int nr, _int nc, _int nnz, _bool contiguous = false )
+	SMat( _int nr, _int nc, _llint nnz, _bool contiguous = false )
 	{
 		this->contiguous = contiguous;
 		this->nr = nr;
@@ -328,6 +328,96 @@ public:
 
 			for(_int j=0; j<size[i]; j++)
 				data[i][j].second /= normsq;
+		}
+	}
+
+	void unit_normalize_X_columns(_int num_Xf, _int num_Y)
+	{
+		for(_int i=0; i<nc; i++)
+		{
+			T normsq = 0;
+			for(_int j=0; j<size[i]; j++)
+			{
+				if(data[i][j].first < num_Xf)
+					normsq += SQ(data[i][j].second);
+			}
+			normsq = sqrt(normsq);
+
+			if(normsq==0)
+				normsq = 1;
+
+			for(_int j=0; j<size[i]; j++)
+			{
+				if(data[i][j].first < num_Xf)
+					data[i][j].second /= normsq;
+			}
+		}
+	}
+
+	void unit_normalize_Y_columns(_int num_Xf, _int num_Y)
+	{
+		for(_int i=0; i<nc; i++)
+		{
+			T normsq = 0;
+			for(_int j=0; j<size[i]; j++)
+			{
+				if(data[i][j].first >= num_Xf)
+					normsq += SQ(data[i][j].second);
+			}
+			normsq = sqrt(normsq);
+
+			if(normsq==0)
+				normsq = 1;
+
+			for(_int j=0; j<size[i]; j++)
+			{
+				if(data[i][j].first >= num_Xf)
+					data[i][j].second /= normsq;
+			}
+		}
+	}
+
+	void normalize_Y_columns(_int num_Xf, _int num_Y)
+	{
+		for(_int i=0; i<nc; i++)
+		{
+			T norm;
+			for(_int j=0; j<size[i]; j++)
+			{
+				if(data[i][j].first == num_Xf+i)
+					norm = data[i][j].second;
+			}
+			// cout<<"Label "<<i<<" occured "<< norm<<" times."<<endl;
+			for(_int j=0; j<size[i]; j++)
+			{
+				if(data[i][j].first >= num_Xf)
+					data[i][j].second /= norm;
+			}
+		}
+	}
+
+	void make_coooc_cons(_int num_Xf, _int cons)
+	{
+		for(_int i=0; i<nc; ++i)
+		{
+			for(_int j=0; j<size[i]; j++)
+			{
+				if(data[i][j].first >= num_Xf)
+					data[i][j].second = cons;
+			}
+		}
+	}
+
+	void remove_self_coocc(_int num_Xf)
+	{
+		for(_int i=0; i<nc; ++i)
+		{
+			for(_int j=0; j<size[i]; j++)
+				if(data[i][j].first == num_Xf+i)
+				{
+					// cout<<"remove "<< data[i][j].second<<endl;
+					data[i][j].second = 0;
+				}
 		}
 	}
 

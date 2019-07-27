@@ -249,6 +249,7 @@ class Param
   _int svm_iter;
   _bool quiet;
   _Septype septype;
+  _int cent_type;
 
   _Parttype part_type;
   string label_graph_path;
@@ -276,6 +277,7 @@ class Param
       part_type = KMEANS;
       label_graph_path = "";
       metis_ufactor = 30;
+      cent_type=0;
     }
 
   Param(string fname)
@@ -346,7 +348,7 @@ class Param
 };
 
 Tree* train_tree( SMatF* trn_X_Xf, SMatF* trn_X_Y, Param& param, _int tree_no );
-void train_trees( SMatF* trn_X_Xf, SMatF* trn_X_Y, Param& param, string model_dir, _float& train_time );
+void train_trees( SMatF* trn_X_Xf, SMatF* trn_X_Y, SMatF* trn_X_XY, Param& param, string model_dir, _float& train_time );
 
 SMatF* predict_tree( SMatF* tst_X_Xf, Tree* tree, Param& param );
 SMatF* predict_trees( SMatF* tst_X_Xf, Param& param, string model_dir, _float& prediction_time, _float& model_size );

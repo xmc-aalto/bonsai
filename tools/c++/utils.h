@@ -14,6 +14,7 @@ Author: Yashoteja Prabhu ( yashoteja.prabhu@gmail.com )
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <vector>
 #include <cfloat>
 
 #include "config.h"
