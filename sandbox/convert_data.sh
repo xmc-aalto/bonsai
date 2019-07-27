@@ -22,4 +22,6 @@ for dataset in ${datasets}; do
 	     ${dir}/tst_X_Xf.txt\
 	     ${dir}/tst_X_Y.txt
     fi
+
+    python3 label_append_train.py ${dataset}
 done
